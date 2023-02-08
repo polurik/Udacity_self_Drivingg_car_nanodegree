@@ -58,6 +58,7 @@ def load_configs_model(model_name='darknet', configs=None):
         configs.num_workers = 4
         configs.pin_memory = True
         configs.use_giou_loss = False
+        configs.min_iou = 0.5
 
     elif model_name == 'fpn_resnet':
         ####### ID_S3_EX1-3 START #######     
@@ -237,8 +238,8 @@ def detect_objects(input_bev_maps, model, configs):
             x = _y / configs.bev_height * (configs.lim_x[1] - configs.lim_x[0] )
             y = _x / configs.bev_width * (configs.lim_y[1] - configs.lim_y[0])
             y -= (configs.lim_y[1] - configs.lim_y[0]) /2 
-            w = _w /configs.bev_width * (configs,lim_y[1] - configs.lim_y[0])
-            l = _l /configs.bev_height * (configs,lim_x[1] - configs.lim_x[0])
+            w = _w /configs.bev_width * (configs.lim_y[1] - configs.lim_y[0])
+            l = _l /configs.bev_height * (configs.lim_x[1] - configs.lim_x[0])
             z = _z
             yaw = -_yaw
 
