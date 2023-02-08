@@ -13,7 +13,7 @@
 # general package imports
 import numpy as np
 import matplotlib
-matplotlib.use('wxagg') # change backend so that figure maximizing works on Mac as well     
+#matplotlib.use('wxagg') # change backend so that figure maximizing works on Mac as well     
 import matplotlib.pyplot as plt
 
 import torch
@@ -49,16 +49,35 @@ def measure_detection_performance(detections, labels, labels_valid, min_iou=0.5)
             print("student task ID_S4_EX1 ")
 
             ## step 1 : extract the four corners of the current label bounding-box
+            x_currlabel = label.box.center_x
+            y_currlabel = label.box.center_y
+            z_currlabel = label.box.center_z
+            w_currlabel = label.box.width
+            l_currlabel = label.box.length
+            yaw_currlabel = label.box.heading
+            label_corners = tools.compute_box_corners(x_currlabel,y_currlabel,w_currlabel,l_currlabel,yaw_currlabel)
             
             ## step 2 : loop over all detected objects
+            for detection in detections:
 
                 ## step 3 : extract the four corners of the current detection
+                id_currdet, x_currdet, y_currdet, z_currdet, h_currdet, w_currdet, l_currdet, yaw_currdet = detection
+                detection_corners = tools.compute_box_corners(x_currdet,y_currdet,w_currdet,l_currdet,yaw_currdet)
                 
                 ## step 4 : computer the center distance between label and detection bounding-box in x, y, and z
+                dist_x = (x_currlabel - x_currdet).item()
+                dist_y = (y_currlabel - y_currdet).item()
+                dist_z = (z_currlabel - z_currdet).item()
+                
                 
                 ## step 5 : compute the intersection over union (IOU) between label and detection bounding-box
+                label_poly = Polygon(label_corners)
+                detection_poly = Polygon(detection_corners)
+                iou = label_poly.intersection(detection_poly).area / label_poly.union(detection_poly).area
                 
                 ## step 6 : if IOU exceeds min_iou threshold, store [iou,dist_x, dist_y, dist_z] in matches_lab_det and increase the TP count
+                if iou > min_iou:
+                    matches_lab_det.append([iou,dist_x,dist_y,dist_z])
                 
             #######
             ####### ID_S4_EX1 END #######     
@@ -75,15 +94,17 @@ def measure_detection_performance(detections, labels, labels_valid, min_iou=0.5)
     print("student task ID_S4_EX2")
     
     # compute positives and negatives for precision/recall
+
+    
     
     ## step 1 : compute the total number of positives present in the scene
-    all_positives = 0
+    
 
     ## step 2 : compute the number of false negatives
-    false_negatives = 0
+    
 
     ## step 3 : compute the number of false positives
-    false_positives = 0
+    
     
     #######
     ####### ID_S4_EX2 END #######     
