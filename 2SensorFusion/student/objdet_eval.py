@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 import torch
 from shapely.geometry import Polygon
 from operator import itemgetter
+from typing import List
 
 # add project directory to python path to enable relative imports
 import os
@@ -65,9 +66,9 @@ def measure_detection_performance(detections, labels, labels_valid, min_iou=0.5)
                 detection_corners = tools.compute_box_corners(x_currdet,y_currdet,w_currdet,l_currdet,yaw_currdet)
                 
                 ## step 4 : computer the center distance between label and detection bounding-box in x, y, and z
-                dist_x = (x_currlabel - x_currdet).item()
-                dist_y = (y_currlabel - y_currdet).item()
-                dist_z = (z_currlabel - z_currdet).item()
+                dist_x = (x_currlabel - x_currdet)#.item()
+                dist_y = (y_currlabel - y_currdet)#y.item()
+                dist_z = (z_currlabel - z_currdet)#.item()
                 
                 
                 ## step 5 : compute the intersection over union (IOU) between label and detection bounding-box
@@ -95,15 +96,20 @@ def measure_detection_performance(detections, labels, labels_valid, min_iou=0.5)
     
     # compute positives and negatives for precision/recall
 
-    
+    true_positives =len(ious)
     
     ## step 1 : compute the total number of positives present in the scene
+
+    all_positives =len(detections)
     
 
     ## step 2 : compute the number of false negatives
+    false_negatives = labels_valid.sum() - true_positives
     
 
     ## step 3 : compute the number of false positives
+
+    false_positives = len(detections) - true_positives
     
     
     #######
@@ -132,12 +138,14 @@ def compute_performance_stats(det_performance_all):
     print('student task ID_S4_EX3')
 
     ## step 1 : extract the total number of positives, true positives, false negatives and false positives
+    pos_negs =np.array(pos_negs)
+    _,truepos, falseneg, falsepos =pos_negs.sum(axis =0)
     
     ## step 2 : compute precision
-    precision = 0.0
+    precision = truepos/(truepos+falsepos)
 
     ## step 3 : compute recall 
-    recall = 0.0
+    recall = truepos/(truepos+ falseneg)
 
     #######    
     ####### ID_S4_EX3 END #######     
@@ -173,10 +181,11 @@ def compute_performance_stats(det_performance_all):
     # plot results
     data = [precision, recall, ious_all, devs_x_all, devs_y_all, devs_z_all]
     titles = ['detection precision', 'detection recall', 'intersection over union', 'position errors in X', 'position errors in Y', 'position error in Z']
-    textboxes = ['', '', '',
-                 '\n'.join((r'$\mathrm{mean}=%.4f$' % (np.mean(devs_x_all), ), r'$\mathrm{sigma}=%.4f$' % (np.std(devs_x_all), ), r'$\mathrm{n}=%.0f$' % (len(devs_x_all), ))),
-                 '\n'.join((r'$\mathrm{mean}=%.4f$' % (np.mean(devs_y_all), ), r'$\mathrm{sigma}=%.4f$' % (np.std(devs_y_all), ), r'$\mathrm{n}=%.0f$' % (len(devs_x_all), ))),
-                 '\n'.join((r'$\mathrm{mean}=%.4f$' % (np.mean(devs_z_all), ), r'$\mathrm{sigma}=%.4f$' % (np.std(devs_z_all), ), r'$\mathrm{n}=%.0f$' % (len(devs_x_all), )))]
+    textboxes = [f"precision:{precision:.02f}",f"recall:{recall:.02f}",
+                 '\n'.join((r'$\mathrm{mean}=%.4f$' % (mean__ious, ), r'$\mathrm{sigma}=%.4f$' % (stdev__ious, ), r'$\mathrm{n}=%.0f$' % (len(ious_all), ))),
+                 '\n'.join((r'$\mathrm{mean}=%.4f$' % (mean__devx, ), r'$\mathrm{sigma}=%.4f$' % (stdev__devx, ), r'$\mathrm{n}=%.0f$' % (len(devs_x_all), ))),
+                 '\n'.join((r'$\mathrm{mean}=%.4f$' % (mean__devy, ), r'$\mathrm{sigma}=%.4f$' % (stdev__devy, ), r'$\mathrm{n}=%.0f$' % (len(devs_y_all), ))),
+                 '\n'.join((r'$\mathrm{mean}=%.4f$' % (mean__devz, ), r'$\mathrm{sigma}=%.4f$' % (stdev__devz, ), r'$\mathrm{n}=%.0f$' % (len(devs_z_all), ))),]
 
     f, a = plt.subplots(2, 3)
     a = a.ravel()
