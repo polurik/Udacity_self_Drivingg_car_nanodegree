@@ -204,6 +204,14 @@ def detect_objects(input_bev_maps, model, configs):
             ####### ID_S3_EX1-5 START #######     
             #######
             print("student task ID_S3_EX1-5")
+            VEHICLE_CLASS = 1
+            outputs['hm_cen'] = _sigmoid(outputs['hm_cen'])
+            outputs['cen_offset'] = _sigmoid(outputs['cen_offset'])
+
+            detections = decode( outputs['hm_cen'], outputs['cen_offset'],  outputs['direction'],  outputs['z_coor'],
+                                 outputs['dim'], K = configs.K )
+            detections = detections.cpu().numpy().astype(np.float32)
+            detections = post_processing(detections, configs)[0][VEHICLE_CLASS]
 
             #######
             ####### ID_S3_EX1-5 END #######     
@@ -223,9 +231,26 @@ def detect_objects(input_bev_maps, model, configs):
             ## step 3 : perform the conversion using the limits for x, y and z set in the configs structure
         
             ## step 4 : append the current object to the 'objects' array
+    if len(detections) > 0:
+
+
+        ## step 2 : loop over all detections
+        for obj in detections:
+            _id,_x,_y,_z,_h,_w,_l,_yaw = obj
+
+            ## step 3 : perform the conversion using the limits for x, y and z set in the configs structure
+            x = _y / configs.bev_height * (configs.lim_x[1] - configs.lim_x[0] )
+            y = _x / configs.bev_width * (configs.lim_y[1] - configs.lim_y[0])
+            y -= (configs.lim_y[1] - configs.lim_y[0]) /2 
+            w = _w /configs.bev_width * (configs.lim_y[1] - configs.lim_y[0])
+            l = _l /configs.bev_height * (configs.lim_x[1] - configs.lim_x[0])
+            z = _z
+            yaw = -_yaw
+
+            ## step 4 : append the current object to the 'objects' array
+            objects.append([1, x, y, z,_h, w, l, yaw])
         
-    #######
-    ####### ID_S3_EX2 START #######   
+   
     
     return objects    
 
