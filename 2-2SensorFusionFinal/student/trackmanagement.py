@@ -62,7 +62,7 @@ class Track:
             [0,0, params.sigma_p66**2]
         ])
 
-        self.P =np.zeros((6,6))
+        self.P = np.zeros((6,6))
         self.P[0:3 ,0:3] = P_pos
         self.P[3:6 ,3:6] = P_vel
 
