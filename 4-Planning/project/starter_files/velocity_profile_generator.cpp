@@ -384,7 +384,9 @@ double VelocityProfileGenerator::calc_distance(
     // function. Make sure you handle div by 0
      
   
-    d = (std::pow(v_f ,2) + std::pow(v_i, 2)/(2 * a));
+    d = std::abs(((v_f*v_f) - (v_i*v_i)) / (2 * a));
+    
+    
   }
   return d;
 }
