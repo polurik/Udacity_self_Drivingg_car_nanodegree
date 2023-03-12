@@ -365,24 +365,26 @@ Inputs: v_i - the initial speed in m/s.
         a - the acceleration in m/s^2.
         */
 
-double VelocityProfileGenerator::calc_distance(const double& v_i,
-                                               const double& v_f,
-                                               const double& a) {
+double VelocityProfileGenerator::calc_distance(
+  const double& v_i,
+  const double& v_f,
+  const double& a
+  ) {
   double d{0.0};
-  if (std::abs(a) < DBL_EPSILON) {
+  if (std::abs(a) < DBL_EPSILON){
+  
+    
     d = std::numeric_limits<double>::infinity();
-  } else {
+  } 
+  else {
     // TODO-calc distance: use one of the common rectilinear accelerated
     // equations of motion to calculate the distance traveled while going from
     // v_i (initial velocity) to v_f (final velocity) at a constant
     // acceleration/deceleration "a". HINT look at the description of this
     // function. Make sure you handle div by 0
-    auto time = (v_f - v_i )/ a;
-    if (time<0) {
-    
-      d = std::numeric_limits<double>::infinity();  // <- Update  
-  }
-    d = v_i *time + 0.5*a* pow(time,2);
+     
+  
+    d = (std::pow(v_f ,2) + std::pow(v_i, 2)/(2 * a));
   }
   return d;
 }
